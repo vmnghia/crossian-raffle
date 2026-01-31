@@ -20,9 +20,19 @@
 		],
 		"paths": {
 			"@/*": ["./src/*"],
+			"@/components": ["./src/components/*"],
 			"@/app/globals.css": ["./src/app/globals.css"]
 		}
 	},
 	"exclude": ["node_modules"],
-	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"]
+	"files": ["./src/types/declarations/svg.d.ts"],
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.d.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		".next/dev/types/**/*.ts",
+		"**/*.mts"
+	]
 }
