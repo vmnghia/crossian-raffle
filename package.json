@@ -11,7 +11,9 @@
   "dependencies": {
     "@mantine/carousel": "^8.3.13",
     "@mantine/core": "^8.3.13",
+    "@mantine/form": "^8.3.13",
     "@mantine/hooks": "^8.3.13",
+    "@tabler/icons-react": "^3.36.1",
     "embla-carousel": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "lodash-es": "^4.17.23",
@@ -23,6 +25,7 @@
     "@eslint-community/eslint-plugin-eslint-comments": "^4.6.0",
     "@eslint/js": "^9.39.2",
     "@next/eslint-plugin-next": "^16.1.6",
+    "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
