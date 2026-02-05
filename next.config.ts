@@ -24,7 +24,6 @@ const nextConfig: NextConfig = {
 	experimental: {
 		optimizePackageImports: ['@mantine/core', '@mantine/hooks', '@mantine/form', '@tabler/icons-react'],
 		turbopackFileSystemCacheForBuild: true,
-		cssChunking: 'strict',
 	},
 	output: process.env.OUTPUT as 'standalone' | 'export' | undefined,
 };

@@ -1,0 +1,22 @@
+[
+	{
+		"name": "MacBook Pro",
+		"imageUrl": "macbook.png",
+		"prize": "grand"
+	},
+	{
+		"name": "iPad Air",
+		"imageUrl": "ipad-air.png",
+		"prize": "first"
+	},
+	{
+		"name": "Apple Watch",
+		"imageUrl": "apple-watch.png",
+		"prize": "second"
+	},
+	{
+		"name": "AirPods Pro",
+		"imageUrl": "airpods-pro.png",
+		"prize": "consolation"
+	}
+]

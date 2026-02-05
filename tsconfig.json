@@ -16,11 +16,15 @@
 		"plugins": [
 			{
 				"name": "next"
+			},
+			{
+				"name": "typescript-plugin-css-modules"
 			}
 		],
 		"paths": {
 			"@/*": ["./src/*"],
-			"@/components": ["./src/components/*"],
+			"@/components/*": ["./src/components/*"],
+			"@/theme/*": ["./src/theme/*"],
 			"@/app/globals.css": ["./src/app/globals.css"]
 		}
 	},
