@@ -26,7 +26,7 @@ const Home = () => {
 				c='#EBE2B7'
 				className='font-monda mb-8 text-center text-3xl font-semibold tracking-widest text-shadow-lg/30'
 			>
-				EMPLOYEE APRECIATION GALA 2026
+				EMPLOYEE APPRECIATION GALA 2026
 			</Text>
 			<Title
 				c='amber.3'
