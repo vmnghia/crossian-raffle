@@ -1,4 +1,5 @@
 import { Box, Center, Grid, GridCol, Stack, Text, Title } from '@mantine/core';
+import { Martel } from 'next/font/google';
 
 import Flower from './flower.svg';
 import LeftDecor from './left.svg';
@@ -6,6 +7,11 @@ import RightDecor from './right1.svg';
 
 import { PrizeImage } from '@/components/PrizeImage';
 import { Raffle } from '@/components/Raffle';
+
+const martel = Martel({
+	subsets: ['latin'],
+	weight: ['400', '700'],
+});
 
 const Home = () => {
 	return (
@@ -24,7 +30,7 @@ const Home = () => {
 			</Text>
 			<Title
 				c='amber.3'
-				className='text-center text-shadow-lg'
+				className={`text-center font-bold text-shadow-lg ${martel.className}`}
 				size={64}
 			>
 				LUCKY DRAW
