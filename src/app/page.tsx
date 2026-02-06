@@ -25,7 +25,7 @@ const Home = () => {
 			<Title
 				c='amber.3'
 				className='text-center text-shadow-lg'
-				size={56}
+				size={64}
 			>
 				LUCKY DRAW
 			</Title>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import { Carousel } from '@mantine/carousel';
 import { Box, Button, Card, Paper, Stack, Text } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
+import confetti from 'canvas-confetti';
 import { clsx } from 'clsx';
 import type { EmblaCarouselType } from 'embla-carousel';
 import Image from 'next/image';
@@ -15,6 +16,29 @@ import { WinnerModal } from './WinnerModal';
 
 import { useConfiguration } from '@/contexts/Configuration';
 import type { Participant } from '@/types';
+
+const firework = (duration: number) => {
+	const animationEnd = Date.now() + duration;
+	const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+	function randomInRange(min: number, max: number) {
+		return Math.random() * (max - min) + min;
+	}
+
+	const interval = setInterval(() => {
+		const timeLeft = animationEnd - Date.now();
+
+		if (timeLeft <= 0) {
+			return clearInterval(interval);
+		}
+
+		const particleCount = 100 * (timeLeft / duration);
+
+		// since particles fall down, start a bit higher than random
+		confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+		confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+	}, 500);
+};
 
 export const Raffle = () => {
 	const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
@@ -44,20 +68,36 @@ export const Raffle = () => {
 							prize: prev.currentPrize,
 						},
 					],
-					participants: deleteWinners ? prev.participants.filter(p => p.id !== winner.id) : prev.participants,
 					currentPrize: prev.currentPrize >= 0 ? prev.currentPrize - 1 : prev.currentPrize,
 				}));
 				setLastWinner(winner);
 				setModalOpened(true);
 				setSpinning(false);
 				toggle(false);
+				// setTimeout(() => {
+				// 	setConfiguration(prev => ({
+				// 		...prev,
+				// 		participants: deleteWinners ? prev.participants.filter(p => p.id !== winner.id) : prev.participants,
+				// 	}));
+				// 	embla.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
+				// }, 500);
 			});
 
-			// const targetIndex = participants.findIndex(p => Boolean(preordainedWinners.find(w => w.id === p.id)));
+			const targetIndex = participants.findIndex(p => Boolean(preordainedWinners.find(w => w.name === p.name)));
 
-			spin(embla, spinTime, interval => setPhaseInterval(interval));
+			spin(embla, spinTime, interval => setPhaseInterval(interval), targetIndex >= 0 ? targetIndex : undefined);
 		}
-	}, [deleteWinners, embla, enabled, participants, preordainedWinners, setConfiguration, spinTime, toggle]);
+	}, [
+		currentPrize,
+		deleteWinners,
+		embla,
+		enabled,
+		participants,
+		preordainedWinners,
+		setConfiguration,
+		spinTime,
+		toggle,
+	]);
 
 	useEffect(() => {
 		if (enabled) {
@@ -150,15 +190,25 @@ export const Raffle = () => {
 				onClick={() => {
 					toggle();
 					setSpinning(true);
+					firework(spinTime + 1000);
 				}}
 			>
 				DRAW
 			</Button>
 			<WinnerModal
-				onClose={() => setModalOpened(false)}
 				opened={modalOpened}
 				prize={winners.find(w => w.participant.id === lastWinner?.id)?.prize}
 				winner={`${lastWinner?.name} - ${lastWinner?.coe}`}
+				onClose={() => {
+					setModalOpened(false);
+					startTransition(() => {
+						setConfiguration(prev => ({
+							...prev,
+							participants: deleteWinners ? prev.participants.filter(p => p.id !== lastWinner?.id) : prev.participants,
+						}));
+					});
+					embla?.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
+				}}
 			/>
 		</Stack>
 	);

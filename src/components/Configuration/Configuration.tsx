@@ -20,7 +20,7 @@ import { isNotEmpty } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { sample, shuffle } from 'lodash-es';
+import { groupBy, sample, shuffle } from 'lodash-es';
 import { compressToUTF16 } from 'lz-string';
 import { v4 } from 'uuid';
 
@@ -181,15 +181,20 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 	};
 
 	const handleSubmit = (values: typeof form.values) => {
+		const preordainedWinners = configuration.preordainedWinners.length
+			? values.preordainedWinners
+			: getPreordainedWinners(values.participants, {
+					CPM: 3,
+					'TECH.PMI': 2,
+					CEE: 2,
+				});
+
+		console.log('Preordained Winners:', groupBy(preordainedWinners, 'coe'));
+		const newParticipants = values.participants.filter(p => !preordainedWinners.find(w => w.name === p.name));
 		const newConfiguration: ConfigurationData = {
 			...values,
-			preordainedWinners: values.preordainedWinners.length
-				? values.preordainedWinners
-				: getPreordainedWinners(values.participants, {
-						CPM: 3,
-						'TECH.PMI': 2,
-						CEE: 2,
-					}),
+			preordainedWinners,
+			participants: [...newParticipants.slice(0, 120), ...preordainedWinners, ...newParticipants.slice(120)],
 		};
 
 		setConfiguration(newConfiguration);
@@ -250,7 +255,7 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 							<Actions participantsListRef={participantsListRef} />
 						</Group>
 						<ScrollArea.Autosize
-							className='max-h-[calc(100%-96px)] min-h-10'
+							className='max-h-[calc(100%-64px)] min-h-10'
 							scrollbarSize={10}
 							scrollHideDelay={100}
 							viewportRef={participantsListRef}
