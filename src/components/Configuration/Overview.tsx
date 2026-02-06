@@ -12,7 +12,10 @@ export const Overview = () => {
 		configuration: { participants },
 	} = useConfiguration();
 
-	const counts = countBy(participants, 'coe');
+	const counts = countBy(
+		participants.filter(p => p.coe),
+		'coe'
+	);
 
 	return (
 		<Popover

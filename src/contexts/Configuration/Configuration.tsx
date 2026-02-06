@@ -5,32 +5,19 @@ import { createContext, useContext, useMemo, useSyncExternalStore } from 'react'
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
 import { v4 } from 'uuid';
 
-import type { COE, Participant } from '@/types';
-
-export type Prize = 'grand' | 'first' | 'second' | 'consolation';
-
-const DEFAULT_NUMBER_OF_PRIZES: { [key in Prize]: number } = {
-	grand: 1,
-	first: 2,
-	second: 3,
-	consolation: 4,
-};
+import type { Participant } from '@/types';
 
 export interface ConfigurationData {
 	participants: Participant[];
 	deleteWinners: boolean;
 	spinTime: number;
-	prizeDistribution: {
-		[key in COE]?: number;
-	};
 	winners?: {
 		participant: Participant;
-		prize: Prize;
+		prize: number;
 	}[];
-	numberOfPrizes: {
-		[key in Prize]: number;
-	};
-	currentPrize: Prize;
+	currentPrize: number;
+	preordainedWinners: Participant[];
+	prideConfettiDuration: number;
 }
 
 export interface ConfigurationContextProps {
@@ -73,14 +60,10 @@ export const defaultConfig: ConfigurationData = {
 	participants: [{ id: v4(), name: '' }],
 	deleteWinners: true,
 	spinTime: 5000,
-	prizeDistribution: {
-		BEVA: 3,
-		'TECH.PMI': 2,
-		CEE: 2,
-	},
 	winners: [],
-	numberOfPrizes: DEFAULT_NUMBER_OF_PRIZES,
-	currentPrize: 'consolation',
+	currentPrize: 9,
+	preordainedWinners: [],
+	prideConfettiDuration: 7500,
 };
 
 export const ConfigurationProvider = ({ children }: { children: ReactNode }) => {
@@ -108,14 +91,14 @@ export const ConfigurationProvider = ({ children }: { children: ReactNode }) => 
 
 				localStorage.setItem('configuration', newValue);
 
-				window.dispatchEvent(new StorageEvent('storage', { key: 'sidebar', newValue }));
+				window.dispatchEvent(new StorageEvent('storage', { key: 'configuration', newValue }));
 			},
 			reset: () => {
 				const newValue = compressToUTF16(JSON.stringify(defaultConfig)) || '';
 
 				localStorage.setItem('configuration', newValue);
 
-				window.dispatchEvent(new StorageEvent('storage', { key: 'sidebar', newValue }));
+				window.dispatchEvent(new StorageEvent('storage', { key: 'configuration', newValue }));
 			},
 		}),
 		[configuration]

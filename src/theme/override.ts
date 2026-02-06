@@ -12,6 +12,7 @@ const themeOverride = createTheme({
 	primaryColor: 'crossian',
 	cursorType: 'pointer',
 	primaryShade: 7,
+	fontFamily: 'var(--font-sans), sans-serif',
 	colors: {
 		crossian: [
 			'#ebf0fe',

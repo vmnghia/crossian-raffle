@@ -2,29 +2,8 @@ import { useEffect } from 'react';
 import { Center, Modal, Stack, Text, Title } from '@mantine/core';
 import type { Options } from 'canvas-confetti';
 import { create } from 'canvas-confetti';
-import { capitalize } from 'lodash-es';
 
-import type { Prize } from '@/contexts/Configuration';
-
-const prizesData = {
-	consolation: {
-		name: 'AirPods Pro',
-	},
-	second: {
-		name: 'Apple Watch',
-	},
-	first: {
-		name: 'iPad Air',
-	},
-	grand: {
-		name: 'MacBook Pro',
-	},
-};
-
-const count = 200;
-const defaults = {
-	origin: { y: 0.5 },
-};
+import { PRIZES_DATA } from '@/data/prizes';
 
 export const WinnerModal = ({
 	winner,
@@ -35,84 +14,86 @@ export const WinnerModal = ({
 	winner: string;
 	onClose: () => void;
 	opened: boolean;
-	prize?: Prize;
+	prize?: number;
 }) => {
 	useEffect(() => {
-		const myCanvas = document.createElement('canvas');
+		const confettiCanvas = document.createElement('canvas');
 
-		myCanvas.width = window.innerWidth;
-		myCanvas.height = window.innerHeight;
-		myCanvas.style.position = 'fixed';
-		myCanvas.style.top = '0';
-		myCanvas.style.left = '0';
-		myCanvas.style.pointerEvents = 'none';
-		myCanvas.style.zIndex = '1000';
+		confettiCanvas.width = window.innerWidth;
+		confettiCanvas.height = window.innerHeight;
+		confettiCanvas.style.position = 'fixed';
+		confettiCanvas.style.top = '0';
+		confettiCanvas.style.left = '0';
+		confettiCanvas.style.pointerEvents = 'none';
+		confettiCanvas.style.zIndex = '1000';
 
-		document.body.appendChild(myCanvas);
-		const confetti = create(myCanvas, {
+		document.body.appendChild(confettiCanvas);
+		const confetti = create(confettiCanvas, {
 			resize: true,
 		});
 
-		const end = Date.now() + 10 * 1000;
+		const end = Date.now() + 5 * 1000;
 
 		const colors = ['#bb0000', '#ffffff', '#ffdd00', '#003399', '#00bb00'];
 
-		const firework = () => {
+		const prideConfetti = () => {
 			confetti({
 				particleCount: 2,
 				angle: 60,
-				spread: 55,
-				origin: { x: 0, y: 0.7 },
+				spread: 64,
+				origin: { x: 0, y: 0.75 },
 				colors,
 			});
 			confetti({
 				particleCount: 2,
 				angle: 120,
-				spread: 55,
-				origin: { x: 1, y: 0.7 },
+				spread: 64,
+				origin: { x: 1, y: 0.75 },
 				colors,
 			});
 
 			if (Date.now() < end) {
-				requestAnimationFrame(firework);
+				requestAnimationFrame(prideConfetti);
 			}
 		};
 
-		const fire = (particleRatio: number, opts: Options) => {
+		const fireConfetti = (particleRatio: number, opts: Options) => {
 			confetti({
-				...defaults,
+				origin: { y: 0.7 },
 				...opts,
-				particleCount: Math.floor(count * particleRatio),
+				particleCount: Math.floor(150 * particleRatio),
 			});
 		};
 
 		if (opened) {
-			firework();
-			fire(0.25, {
+			prideConfetti();
+			fireConfetti(0.25, {
 				spread: 26,
 				startVelocity: 55,
 			});
-			fire(0.2, {
+			fireConfetti(0.2, {
 				spread: 60,
 			});
-			fire(0.35, {
+			fireConfetti(0.35, {
 				spread: 100,
 				decay: 0.91,
 				scalar: 0.8,
 			});
-			fire(0.1, {
+			fireConfetti(0.1, {
 				spread: 120,
 				startVelocity: 25,
 				decay: 0.92,
 				scalar: 1.2,
 			});
-			fire(0.1, {
+			fireConfetti(0.1, {
 				spread: 120,
 				startVelocity: 45,
 			});
-		} else {
-			document.body.removeChild(myCanvas);
 		}
+
+		return () => {
+			document.body.removeChild(confettiCanvas);
+		};
 	}, [opened]);
 
 	return (
@@ -121,7 +102,7 @@ export const WinnerModal = ({
 			onClose={onClose}
 			opened={opened}
 			padding={0}
-			size={744}
+			size={1024}
 			withCloseButton={false}
 			classNames={{
 				body: 'h-full text-white',
@@ -132,31 +113,32 @@ export const WinnerModal = ({
 			}}
 		>
 			<Center
-				bg="url('/images/winner-modal-bg.png')"
-				className='h-97 w-full p-8'
+				bg="url('/images/winner-modal-bg.png') no-repeat center/100% 100%"
+				className='h-133.5 w-full p-8'
 			>
 				<Stack
 					align='center'
 					gap='xl'
 				>
 					<Title
-						fw='medium'
+						className='font-inter mb-8 text-5xl font-bold'
 						order={1}
 					>
 						Congratulations!
 					</Title>
 					<Text
 						c='amber.2'
-						className='text-5xl font-bold'
+						className='text-center text-5xl font-bold'
 					>
 						{winner}
 					</Text>
-					{prize ? (
-						<Text size='lg'>
-							<b>{capitalize(prize)} prize: </b>
-							{prizesData[prize].name}
-						</Text>
-					) : null}
+					<Text
+						c='amber'
+						className='font-monda mt-4 text-4xl font-semibold'
+					>
+						{prize !== undefined ? PRIZES_DATA[prize]?.title : ''}:
+					</Text>
+					<Text className='font-monda text-3xl'>{prize !== undefined ? PRIZES_DATA[prize]?.name : ''}</Text>
 				</Stack>
 			</Center>
 		</Modal>

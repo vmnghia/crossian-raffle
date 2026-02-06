@@ -1,6 +1,6 @@
 import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
 import type { Metadata } from 'next';
-import { Inter, Monda } from 'next/font/google';
+import { Inter, Monda, Poppins } from 'next/font/google';
 
 import '@/app/globals.css';
 import '@mantine/carousel/styles.layer.css';
@@ -17,6 +17,12 @@ const inter = Inter({
 const monda = Monda({
 	variable: '--font-monda',
 	subsets: ['latin'],
+});
+
+const poppins = Poppins({
+	variable: '--font-poppins',
+	subsets: ['latin'],
+	weight: ['400', '500', '600', '700', '800', '900'],
 });
 
 export const metadata: Metadata = {
@@ -37,7 +43,7 @@ const RootLayout = ({
 			<head>
 				<ColorSchemeScript defaultColorScheme='dark' />
 			</head>
-			<body className={`${inter.variable} ${monda.variable} font-sans antialiased`}>
+			<body className={`${inter.variable} ${monda.variable} ${poppins.variable} font-sans antialiased`}>
 				<ConfigurationProvider>
 					<MantineProvider
 						defaultColorScheme='dark'

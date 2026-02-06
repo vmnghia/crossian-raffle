@@ -1,39 +1,20 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Carousel } from '@mantine/carousel';
 import { Box, Button, Card, Paper, Stack, Text } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
 import { clsx } from 'clsx';
 import type { EmblaCarouselType } from 'embla-carousel';
-import { sample, shuffle } from 'lodash-es';
 import Image from 'next/image';
 
-import { COES } from '../Configuration/constants';
 import cloud1 from './cloud_1.png';
 import cloud2 from './cloud_2.png';
-import { spin } from './spin';
+import { spin } from './spin-old';
 import { WinnerModal } from './WinnerModal';
 
-import type { Prize } from '@/contexts/Configuration';
 import { useConfiguration } from '@/contexts/Configuration';
 import type { Participant } from '@/types';
-
-const PRIZE_ORDER: Prize[] = ['grand', 'first', 'second', 'consolation'];
-
-const getNextPrize = (currentPrize: Prize | null): Prize => {
-	switch (currentPrize) {
-		case 'consolation':
-			return 'second';
-		case 'second':
-			return 'first';
-		case 'first':
-		case 'grand':
-			return 'grand';
-		default:
-			return 'consolation';
-	}
-};
 
 export const Raffle = () => {
 	const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
@@ -43,32 +24,9 @@ export const Raffle = () => {
 	const [phaseInterval, setPhaseInterval] = useState<number | null>(null);
 	const [lastWinner, setLastWinner] = useState<Participant | null>(null);
 	const {
-		configuration: {
-			participants,
-			spinTime,
-			prizeDistribution,
-			winners = [],
-			numberOfPrizes,
-			deleteWinners,
-			currentPrize,
-		},
+		configuration: { participants, spinTime, winners = [], deleteWinners, currentPrize, preordainedWinners },
 		setConfiguration,
 	} = useConfiguration();
-
-	const nextPrize = useMemo(() => {
-		const currentPrizeCount = numberOfPrizes[currentPrize || 'consolation'] || 0;
-		const currentPrizeWinners = winners.filter(w => w.prize === currentPrize).length;
-		const shouldAdvance = currentPrizeWinners >= currentPrizeCount;
-
-		return shouldAdvance ? getNextPrize(currentPrize) : currentPrize;
-	}, [currentPrize, numberOfPrizes, winners]);
-
-	useEffect(() => {
-		setConfiguration(prev => ({
-			...prev,
-			currentPrize: nextPrize,
-		}));
-	}, [nextPrize, setConfiguration]);
 
 	const hasParticipants = participants.length > 1 && participants.some(p => p.name && p.name.trim() !== '');
 
@@ -83,10 +41,11 @@ export const Raffle = () => {
 						...(prev.winners ?? []),
 						{
 							participant: winner,
-							prize: nextPrize,
+							prize: prev.currentPrize,
 						},
 					],
 					participants: deleteWinners ? prev.participants.filter(p => p.id !== winner.id) : prev.participants,
+					currentPrize: prev.currentPrize >= 0 ? prev.currentPrize - 1 : prev.currentPrize,
 				}));
 				setLastWinner(winner);
 				setModalOpened(true);
@@ -94,42 +53,11 @@ export const Raffle = () => {
 				toggle(false);
 			});
 
-			const prizeDistributionSatisfied = Object.entries(prizeDistribution).every(([coe, count]) => {
-				const awardedCount = winners?.filter(w => w.participant.coe === coe).length ?? 0;
+			// const targetIndex = participants.findIndex(p => Boolean(preordainedWinners.find(w => w.id === p.id)));
 
-				return awardedCount >= count;
-			});
-
-			const nextCOE = !prizeDistributionSatisfied
-				? shuffle(Object.entries(prizeDistribution)).find(([coe, count]) => {
-						const awardedCount = winners?.filter(w => w.participant.coe === coe).length ?? 0;
-
-						return awardedCount < count;
-					})?.[0] || null
-				: sample(
-						COES.filter(coe => {
-							return Object.keys(prizeDistribution).includes(coe);
-						})
-					);
-
-			const targetIndex = participants.findIndex(p => p.coe === nextCOE);
-
-			spin(embla, spinTime, interval => setPhaseInterval(interval), targetIndex !== -1 ? targetIndex : undefined);
+			spin(embla, spinTime, interval => setPhaseInterval(interval));
 		}
-	}, [
-		currentPrize,
-		deleteWinners,
-		embla,
-		enabled,
-		nextPrize,
-		numberOfPrizes,
-		participants,
-		prizeDistribution,
-		setConfiguration,
-		spinTime,
-		toggle,
-		winners,
-	]);
+	}, [deleteWinners, embla, enabled, participants, preordainedWinners, setConfiguration, spinTime, toggle]);
 
 	useEffect(() => {
 		if (enabled) {
@@ -145,11 +73,7 @@ export const Raffle = () => {
 		}
 	}, [enabled, toggle, spinTime, lastWinner]);
 
-	const hasRemainingPrizes = PRIZE_ORDER.some(prize => {
-		const awardedCount = winners?.filter(w => w.prize === prize).length ?? 0;
-
-		return awardedCount < (numberOfPrizes[prize] || 0);
-	});
+	const hasRemainingPrizes = currentPrize >= 0;
 
 	return (
 		<Stack
@@ -158,7 +82,7 @@ export const Raffle = () => {
 		>
 			<Card
 				className='w-full overflow-visible p-8'
-				radius='xl'
+				radius={40}
 				shadow='md'
 			>
 				<Image
@@ -172,8 +96,8 @@ export const Raffle = () => {
 					src={cloud2}
 				/>
 				<Box
-					bg='url(/images/slot-bg.png) no-repeat center/cover'
-					className='absolute inset-0'
+					bg='url(/images/slot-bg.png) no-repeat center/100% 100%'
+					className='absolute inset-0 size-full'
 				/>
 				<Box
 					className={clsx(
@@ -189,7 +113,7 @@ export const Raffle = () => {
 					<Carousel
 						className='w-full flex-1'
 						draggable={false}
-						emblaOptions={{ loop: true, dragFree: true, duration: 80, watchDrag: false, watchFocus: false }}
+						emblaOptions={{ loop: true, dragFree: true, duration: 70, watchDrag: false, watchFocus: false }}
 						getEmblaApi={setEmbla}
 						height='100%'
 						orientation='vertical'
@@ -204,7 +128,7 @@ export const Raffle = () => {
 								}}
 							>
 								<Text
-									c='yellow.1'
+									c='yellow.7'
 									inherit
 									span
 								>

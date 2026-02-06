@@ -23,8 +23,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 					className='h-full w-full'
 					justify='space-between'
 				>
-					<Logo />
-					<ActionIcon.Group>
+					<Logo className='fixed top-12.5 left-17' />
+					<ActionIcon.Group className='ml-auto'>
 						<ActionIcon
 							color='royal-blue'
 							onClick={toggleDrawer}
@@ -36,13 +36,13 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 					</ActionIcon.Group>
 				</Group>
 			</AppShell.Header>
-			<AppShell.Main className='flex h-dvh flex-col'>
+			<AppShell.Main className='flex h-dvh flex-col overflow-hidden'>
 				{children}
 				<Drawer
 					onClose={toggleDrawer}
 					opened={drawerOpened}
 					position='right'
-					size={736}
+					size={768}
 					withCloseButton={false}
 					classNames={{
 						body: 'h-dvh',

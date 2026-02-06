@@ -9,6 +9,7 @@ import {
 	Fieldset,
 	Group,
 	InputWrapper,
+	Paper,
 	ScrollArea,
 	Select,
 	Slider,
@@ -19,6 +20,7 @@ import { isNotEmpty } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { sample, shuffle } from 'lodash-es';
 import { compressToUTF16 } from 'lz-string';
 import { v4 } from 'uuid';
 
@@ -26,27 +28,56 @@ import { Actions } from './Actions';
 import { COES } from './constants';
 import { FormProvider, useForm } from './form';
 
+import type { ConfigurationData } from '@/contexts/Configuration';
 import { useConfiguration } from '@/contexts/Configuration';
+import type { COE, Participant } from '@/types';
+
+const getPreordainedWinners = (
+	participants: Participant[],
+	prizeDistribution: {
+		[key in COE]?: number;
+	}
+): Participant[] => {
+	const winners: Participant[] = [];
+	const distributionCOEs = Object.keys(prizeDistribution) as COE[];
+
+	// Get winners based on prizeDistribution for each COE
+	distributionCOEs.forEach(coe => {
+		const count = prizeDistribution[coe] ?? 0;
+		const coeParticipants = participants.filter(p => p.coe === coe);
+		const shuffledCoeParticipants = shuffle(coeParticipants);
+		const selected = shuffledCoeParticipants.slice(0, Math.min(count, shuffledCoeParticipants.length));
+
+		winners.push(...selected);
+	});
+
+	// If total winners < 10, fill from remaining COEs (at most 1 per COE)
+	if (winners.length < 10) {
+		const otherCOEs = COES.filter(coe => !distributionCOEs.includes(coe));
+		const shuffledOtherCOEs = shuffle(otherCOEs);
+
+		// Get at most 1 winner from each remaining COE
+		for (const coe of shuffledOtherCOEs) {
+			if (winners.length >= 10) break;
+
+			const coeParticipants = participants.filter(p => p.coe === coe && !winners.some(w => w.id === p.id));
+
+			if (coeParticipants.length > 0) {
+				const randomParticipant = sample(coeParticipants);
+
+				if (randomParticipant) {
+					winners.push(randomParticipant);
+				}
+			}
+		}
+	}
+
+	return shuffle(winners);
+};
 
 export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 	const { configuration, setConfiguration } = useConfiguration();
-	const {
-		participants = [],
-		deleteWinners = false,
-		spinTime = 5000,
-		prizeDistribution = {
-			BEVA: 3,
-			'TECH.PMI': 2,
-			CEE: 2,
-		},
-		numberOfPrizes = {
-			consolation: 4,
-			second: 3,
-			first: 2,
-			grand: 1,
-		},
-		winners = [],
-	} = configuration;
+	const { participants = [], deleteWinners = false, spinTime = 5000, winners = [], currentPrize = 9 } = configuration;
 	const [search, setSearch] = useState('');
 	const [coeFilter, setCOEFilter] = useState<string | null>(null);
 	const [debouncedSearch] = useDebouncedValue(search, 200);
@@ -64,10 +95,10 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 					],
 			deleteWinners,
 			spinTime,
-			prizeDistribution,
-			numberOfPrizes,
 			winners,
-			currentPrize: 'consolation',
+			currentPrize,
+			preordainedWinners: [],
+			prideConfettiDuration: 7500,
 		},
 		mode: 'uncontrolled',
 		validateInputOnChange: true,
@@ -150,8 +181,19 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 	};
 
 	const handleSubmit = (values: typeof form.values) => {
-		setConfiguration(values);
-		window.localStorage.setItem('configuration', compressToUTF16(JSON.stringify(values)));
+		const newConfiguration: ConfigurationData = {
+			...values,
+			preordainedWinners: values.preordainedWinners.length
+				? values.preordainedWinners
+				: getPreordainedWinners(values.participants, {
+						CPM: 3,
+						'TECH.PMI': 2,
+						CEE: 2,
+					}),
+		};
+
+		setConfiguration(newConfiguration);
+		window.localStorage.setItem('configuration', compressToUTF16(JSON.stringify(newConfiguration)));
 
 		onSave?.();
 	};
@@ -208,7 +250,7 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 							<Actions participantsListRef={participantsListRef} />
 						</Group>
 						<ScrollArea.Autosize
-							className='max-h-[calc(100%-64px)] min-h-10'
+							className='max-h-[calc(100%-96px)] min-h-10'
 							scrollbarSize={10}
 							scrollHideDelay={100}
 							viewportRef={participantsListRef}
@@ -240,17 +282,35 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 							value={form.getValues().spinTime}
 						/>
 					</InputWrapper>
+					<InputWrapper
+						className='mt-4'
+						label={`Confetti Duration: ${form.getValues().prideConfettiDuration / 1000} seconds`}
+					>
+						<Slider
+							className='my-2 w-120'
+							color='scarlet'
+							label={null}
+							max={15000}
+							min={1000}
+							onChange={value => form.setFieldValue('prideConfettiDuration', value)}
+							size='lg'
+							step={500}
+							thumbSize={20}
+							value={form.getValues().prideConfettiDuration}
+						/>
+					</InputWrapper>
 					<Checkbox
 						label='Delete winners from participants list'
 						{...form.getInputProps('deleteWinners', { type: 'checkbox' })}
 					/>
-					<Button
-						className='sticky bottom-2 mt-4'
-						size='lg'
-						type='submit'
-					>
-						Save
-					</Button>
+					<Paper className='sticky bottom-0 z-10 py-4'>
+						<Button
+							size='lg'
+							type='submit'
+						>
+							Save
+						</Button>
+					</Paper>
 				</form>
 			</FormProvider>
 		</>

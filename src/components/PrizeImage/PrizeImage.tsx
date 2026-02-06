@@ -1,59 +1,40 @@
 'use client';
 
-import { Stack, Text, Title } from '@mantine/core';
-import { capitalize } from 'lodash-es';
+import { Card, CardSection, Stack } from '@mantine/core';
 import Image from 'next/image';
 
-import airpodsImg from './airpods-pro.png';
-import appleWatchImg from './apple-watch.png';
-import ipadImg from './ipad-air.png';
-import macbookImg from './macbook.png';
-
 import { useConfiguration } from '@/contexts/Configuration';
-
-const prizesData = {
-	consolation: {
-		name: 'AirPods Pro',
-		imageUrl: airpodsImg,
-	},
-	second: {
-		name: 'Apple Watch',
-		imageUrl: appleWatchImg,
-	},
-	first: {
-		name: 'iPad Air',
-		imageUrl: ipadImg,
-	},
-	grand: {
-		name: 'MacBook Pro',
-		imageUrl: macbookImg,
-	},
-};
+import { PRIZES_DATA } from '@/data/prizes';
 
 export const PrizeImage = () => {
 	const { configuration } = useConfiguration();
 	const { currentPrize } = configuration;
-	const prize = currentPrize in prizesData ? prizesData[currentPrize] : null;
+	const prize = PRIZES_DATA[currentPrize];
 
 	if (!prize) {
 		return null;
 	}
 
 	return (
-		<Stack align='center'>
-			<Title
-				c='amber.5'
-				order={2}
-				size={48}
+		<Stack
+			align='center'
+			className='w-full px-24'
+		>
+			<Card
+				className='relative aspect-[1.5] w-full'
+				radius='xl'
+				shadow='xl'
 			>
-				{capitalize(currentPrize)} Prize
-			</Title>
-			<Image
-				alt='MacBook'
-				className='object-cover'
-				src={prize.imageUrl}
-			/>
-			<Text size='xl'>{prize.name}</Text>
+				<CardSection>
+					<Image
+						alt={prize.name || 'Prize Image'}
+						className='object-cover'
+						fill
+						sizes='(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 50vw'
+						src={prize.imageUrl}
+					/>
+				</CardSection>
+			</Card>
 		</Stack>
 	);
 };
