@@ -19,7 +19,7 @@
 	--color-foreground: var(--foreground);
 	--font-sans: var(--font-poppins);
 	--font-monda: var(--font-monda);
-	--font-inter: var(--font-inter);
+	--font-rakkas: var(--font-rakkas);
 
 	--animate-blink: blink 0.3s ease-in-out infinite;
 	@keyframes blink {

@@ -1,10 +1,10 @@
 import { Box, ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
 import type { Metadata } from 'next';
-import { Inter, Monda, Poppins } from 'next/font/google';
+import { Monda, Poppins, Rakkas } from 'next/font/google';
 
 import Flower from './flower.svg';
 import LeftDecor from './left.svg';
-import RightDecor from './right1.svg';
+import RightDecor from './right.svg';
 
 import '@/app/globals.css';
 import '@mantine/carousel/styles.layer.css';
@@ -13,9 +13,10 @@ import { AppLayout } from '@/components/AppLayout';
 import { ConfigurationProvider } from '@/contexts/Configuration/Configuration';
 import { theme } from '@/theme';
 
-const inter = Inter({
-	variable: '--font-inter',
+const rakkas = Rakkas({
+	variable: '--font-rakkas',
 	subsets: ['latin'],
+	weight: ['400'],
 });
 
 const monda = Monda({
@@ -47,7 +48,7 @@ const RootLayout = ({
 			<head>
 				<ColorSchemeScript defaultColorScheme='dark' />
 			</head>
-			<body className={`${inter.variable} ${monda.variable} ${poppins.variable} font-sans antialiased`}>
+			<body className={`${rakkas.variable} ${monda.variable} ${poppins.variable} font-sans antialiased`}>
 				<ConfigurationProvider>
 					<MantineProvider
 						defaultColorScheme='dark'
@@ -58,9 +59,9 @@ const RootLayout = ({
 								bg='linear-gradient(180deg,var(--mantine-color-royal-blue-9) 0%, var(--mantine-color-royal-blue-5) 100%)'
 								className='relative flex min-h-0 w-full grow flex-col pt-15 pb-24 text-white'
 							>
-								<LeftDecor className='fixed bottom-0 left-0' />
+								<LeftDecor className='fixed -bottom-2 left-0' />
 								<RightDecor className='fixed right-0 bottom-0' />
-								<Flower className='fixed top-0 left-0 z-99' />
+								<Flower className='fixed top-0 left-0 z-99 opacity-75' />
 								{children}
 							</Box>
 						</AppLayout>

@@ -23,7 +23,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 					className='h-full w-full'
 					justify='space-between'
 				>
-					<Logo className='fixed top-12.5 left-17' />
+					<Logo className='fixed top-12 left-13.25' />
 					<ActionIcon.Group className='ml-auto'>
 						<ActionIcon
 							color='royal-blue'

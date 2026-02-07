@@ -4,6 +4,8 @@ import { IconReload } from '@tabler/icons-react';
 import type { Options } from 'canvas-confetti';
 import { create } from 'canvas-confetti';
 
+import Background from './winner-bg.svg';
+
 import { useConfiguration } from '@/contexts/Configuration';
 import { PRIZES_DATA } from '@/data/prizes';
 import type { Participant } from '@/types';
@@ -44,16 +46,20 @@ export const WinnerModal = ({
 
 		const prideConfetti = () => {
 			confetti({
-				particleCount: 2,
+				particleCount: 5,
 				angle: 60,
+				drift: 0.5,
 				spread: 64,
+				scalar: 1.25,
 				origin: { x: 0, y: 0.75 },
 				colors,
 			});
 			confetti({
-				particleCount: 2,
+				particleCount: 5,
 				angle: 120,
+				drift: -0.5,
 				spread: 64,
+				scalar: 1.25,
 				origin: { x: 1, y: 0.75 },
 				colors,
 			});
@@ -108,7 +114,7 @@ export const WinnerModal = ({
 			onClose={onClose}
 			opened={opened}
 			padding={0}
-			size={1024}
+			size='65dvw'
 			withCloseButton={false}
 			classNames={{
 				body: 'h-full text-white',
@@ -118,33 +124,33 @@ export const WinnerModal = ({
 				blur: 5,
 			}}
 		>
-			<Center
-				bg="url('/images/winner-modal-bg.png') no-repeat center/100% 100%"
-				className='h-133.5 w-full p-8'
-			>
+			<Center className='h-[55.5dvh] w-full p-8'>
+				<Background className='pointer-events-none absolute inset-0 -z-1 h-full w-full' />
 				<Stack
 					align='center'
+					className='z-1'
 					gap='xl'
 				>
 					<Title
-						className='font-inter mb-8 text-5xl font-bold'
+						className='mb-8 text-5xl font-bold tracking-widest'
+						ff='var(--font-rakkas)'
 						order={1}
 					>
 						Congratulations!
 					</Title>
 					<Text
-						c='amber.2'
-						className='text-center text-5xl font-bold'
+						c='amber.1'
+						className='text-center text-6xl font-bold'
 					>
 						{`${winner?.name} - ${winner?.coe}`}
 					</Text>
 					<Text
 						c='amber'
-						className='font-monda mt-4 text-4xl font-semibold'
+						className='mt-4 text-4xl font-semibold'
 					>
 						{prize !== undefined ? PRIZES_DATA[prize]?.title : ''}:
 					</Text>
-					<Text className='font-monda text-3xl'>{prize !== undefined ? PRIZES_DATA[prize]?.name : ''}</Text>
+					<Text className='text-3xl font-bold'>{prize !== undefined ? PRIZES_DATA[prize]?.name : ''}</Text>
 				</Stack>
 			</Center>
 			<Affix>
