@@ -63,7 +63,7 @@ export const defaultConfig: ConfigurationData = {
 	winners: [],
 	currentPrize: 9,
 	preordainedWinners: [],
-	prideConfettiDuration: 7500,
+	prideConfettiDuration: 6000,
 };
 
 export const ConfigurationProvider = ({ children }: { children: ReactNode }) => {
