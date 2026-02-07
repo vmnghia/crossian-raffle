@@ -1,21 +1,27 @@
 import { useEffect } from 'react';
-import { Center, Modal, Stack, Text, Title } from '@mantine/core';
+import { ActionIcon, Affix, Center, Modal, Stack, Text, Title } from '@mantine/core';
+import { IconReload } from '@tabler/icons-react';
 import type { Options } from 'canvas-confetti';
 import { create } from 'canvas-confetti';
 
+import { useConfiguration } from '@/contexts/Configuration';
 import { PRIZES_DATA } from '@/data/prizes';
+import type { Participant } from '@/types';
 
 export const WinnerModal = ({
 	winner,
 	onClose,
 	opened,
-	prize,
+	onCancel,
 }: {
-	winner: string;
+	winner: Participant | null;
 	onClose: () => void;
 	opened: boolean;
-	prize?: number;
+	onCancel?: (lastWinner: Participant | null) => void;
 }) => {
+	const { configuration } = useConfiguration();
+	const prize = configuration.currentPrize;
+
 	useEffect(() => {
 		const confettiCanvas = document.createElement('canvas');
 
@@ -130,7 +136,7 @@ export const WinnerModal = ({
 						c='amber.2'
 						className='text-center text-5xl font-bold'
 					>
-						{winner}
+						{`${winner?.name} - ${winner?.coe}`}
 					</Text>
 					<Text
 						c='amber'
@@ -141,6 +147,18 @@ export const WinnerModal = ({
 					<Text className='font-monda text-3xl'>{prize !== undefined ? PRIZES_DATA[prize]?.name : ''}</Text>
 				</Stack>
 			</Center>
+			<Affix>
+				<ActionIcon
+					color='white'
+					size='xl'
+					variant='subtle'
+					onClick={() => {
+						onCancel?.(winner);
+					}}
+				>
+					<IconReload size='80%' />
+				</ActionIcon>
+			</Affix>
 		</Modal>
 	);
 };

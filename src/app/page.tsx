@@ -1,9 +1,5 @@
-import { Box, Center, Grid, GridCol, Stack, Text, Title } from '@mantine/core';
+import { Center, Grid, GridCol, Stack, Text, Title } from '@mantine/core';
 import { Martel } from 'next/font/google';
-
-import Flower from './flower.svg';
-import LeftDecor from './left.svg';
-import RightDecor from './right1.svg';
 
 import { PrizeImage } from '@/components/PrizeImage';
 import { Raffle } from '@/components/Raffle';
@@ -15,13 +11,7 @@ const martel = Martel({
 
 const Home = () => {
 	return (
-		<Box
-			bg='linear-gradient(180deg,var(--mantine-color-royal-blue-9) 0%, var(--mantine-color-royal-blue-5) 100%)'
-			className='relative flex min-h-0 w-full grow flex-col pt-15 pb-24 text-white'
-		>
-			<LeftDecor className='fixed bottom-0 left-0' />
-			<RightDecor className='fixed right-0 bottom-0' />
-			<Flower className='fixed top-0 left-0 z-99' />
+		<>
 			<Text
 				c='#EBE2B7'
 				className='font-monda mb-8 text-center text-3xl font-semibold tracking-widest text-shadow-lg/30'
@@ -57,7 +47,7 @@ const Home = () => {
 					</Stack>
 				</GridCol>
 			</Grid>
-		</Box>
+		</>
 	);
 };
 

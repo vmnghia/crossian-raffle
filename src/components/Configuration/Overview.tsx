@@ -3,14 +3,12 @@ import { ActionIcon, Grid, Popover, Text, Tooltip } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { countBy, sortBy } from 'lodash-es';
 
+import { useFormContext } from './form';
 import { WinnerList } from './WinnerList';
 
-import { useConfiguration } from '@/contexts/Configuration';
-
 export const Overview = () => {
-	const {
-		configuration: { participants },
-	} = useConfiguration();
+	const form = useFormContext();
+	const participants = form.getValues().participants;
 
 	const counts = countBy(
 		participants.filter(p => p.coe),

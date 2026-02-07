@@ -1,6 +1,10 @@
-import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
+import { Box, ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
 import type { Metadata } from 'next';
 import { Inter, Monda, Poppins } from 'next/font/google';
+
+import Flower from './flower.svg';
+import LeftDecor from './left.svg';
+import RightDecor from './right1.svg';
 
 import '@/app/globals.css';
 import '@mantine/carousel/styles.layer.css';
@@ -49,7 +53,17 @@ const RootLayout = ({
 						defaultColorScheme='dark'
 						theme={theme}
 					>
-						<AppLayout>{children}</AppLayout>
+						<AppLayout>
+							<Box
+								bg='linear-gradient(180deg,var(--mantine-color-royal-blue-9) 0%, var(--mantine-color-royal-blue-5) 100%)'
+								className='relative flex min-h-0 w-full grow flex-col pt-15 pb-24 text-white'
+							>
+								<LeftDecor className='fixed bottom-0 left-0' />
+								<RightDecor className='fixed right-0 bottom-0' />
+								<Flower className='fixed top-0 left-0 z-99' />
+								{children}
+							</Box>
+						</AppLayout>
 					</MantineProvider>
 				</ConfigurationProvider>
 			</body>

@@ -20,7 +20,7 @@ import { isNotEmpty } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconX } from '@tabler/icons-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { groupBy, sample, shuffle } from 'lodash-es';
+import { sample, shuffle } from 'lodash-es';
 import { compressToUTF16 } from 'lz-string';
 import { v4 } from 'uuid';
 
@@ -189,7 +189,6 @@ export const Configuration = ({ onSave }: { onSave?: () => void }) => {
 					CEE: 2,
 				});
 
-		console.log('Preordained Winners:', groupBy(preordainedWinners, 'coe'));
 		const newParticipants = values.participants.filter(p => !preordainedWinners.find(w => w.name === p.name));
 		const newConfiguration: ConfigurationData = {
 			...values,

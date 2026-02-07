@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import { clsx } from 'clsx';
 import type { EmblaCarouselType } from 'embla-carousel';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import cloud1 from './cloud_1.png';
 import cloud2 from './cloud_2.png';
@@ -42,15 +43,16 @@ const firework = (duration: number) => {
 
 export const Raffle = () => {
 	const [embla, setEmbla] = useState<EmblaCarouselType | null>(null);
-	const [enabled, toggle] = useToggle();
+	const [enabled, toggleEnabled] = useToggle();
 	const [modalOpened, setModalOpened] = useState(false);
 	const [spinning, setSpinning] = useState(false);
 	const [phaseInterval, setPhaseInterval] = useState<number | null>(null);
 	const [lastWinner, setLastWinner] = useState<Participant | null>(null);
 	const {
-		configuration: { participants, spinTime, winners = [], deleteWinners, currentPrize, preordainedWinners },
+		configuration: { participants, spinTime, deleteWinners, currentPrize, preordainedWinners },
 		setConfiguration,
 	} = useConfiguration();
+	const router = useRouter();
 
 	const hasParticipants = participants.length > 1 && participants.some(p => p.name && p.name.trim() !== '');
 
@@ -59,28 +61,10 @@ export const Raffle = () => {
 			embla.on('settle', e => {
 				const winner = participants[e.selectedScrollSnap()];
 
-				setConfiguration(prev => ({
-					...prev,
-					winners: [
-						...(prev.winners ?? []),
-						{
-							participant: winner,
-							prize: prev.currentPrize,
-						},
-					],
-					currentPrize: prev.currentPrize >= 0 ? prev.currentPrize - 1 : prev.currentPrize,
-				}));
 				setLastWinner(winner);
 				setModalOpened(true);
 				setSpinning(false);
-				toggle(false);
-				// setTimeout(() => {
-				// 	setConfiguration(prev => ({
-				// 		...prev,
-				// 		participants: deleteWinners ? prev.participants.filter(p => p.id !== winner.id) : prev.participants,
-				// 	}));
-				// 	embla.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
-				// }, 500);
+				toggleEnabled(false);
 			});
 
 			const targetIndex = participants.findIndex(p => Boolean(preordainedWinners.find(w => w.name === p.name)));
@@ -96,7 +80,7 @@ export const Raffle = () => {
 		preordainedWinners,
 		setConfiguration,
 		spinTime,
-		toggle,
+		toggleEnabled,
 	]);
 
 	useEffect(() => {
@@ -104,14 +88,14 @@ export const Raffle = () => {
 			// If no target winner is specified, use the normal timeout
 			if (!lastWinner) {
 				const timeout = setTimeout(() => {
-					toggle();
+					toggleEnabled();
 				}, spinTime);
 
 				return () => clearTimeout(timeout);
 			}
 			// If target winner is specified, the spin function will handle stopping
 		}
-	}, [enabled, toggle, spinTime, lastWinner]);
+	}, [enabled, toggleEnabled, spinTime, lastWinner]);
 
 	const hasRemainingPrizes = currentPrize >= 0;
 
@@ -188,7 +172,7 @@ export const Raffle = () => {
 				radius='lg'
 				size='xl'
 				onClick={() => {
-					toggle();
+					toggleEnabled(true);
 					setSpinning(true);
 					firework(spinTime + 1000);
 				}}
@@ -197,17 +181,49 @@ export const Raffle = () => {
 			</Button>
 			<WinnerModal
 				opened={modalOpened}
-				prize={winners.find(w => w.participant.id === lastWinner?.id)?.prize}
-				winner={`${lastWinner?.name} - ${lastWinner?.coe}`}
-				onClose={() => {
+				// prize={winners.find(w => w.participant.id === lastWinner?.id)?.prize}
+				winner={lastWinner}
+				onCancel={lastWinner => {
 					setModalOpened(false);
 					startTransition(() => {
 						setConfiguration(prev => ({
 							...prev,
-							participants: deleteWinners ? prev.participants.filter(p => p.id !== lastWinner?.id) : prev.participants,
+							participants: participants.filter(p => p.id !== lastWinner?.id),
+							preordainedWinners: prev.preordainedWinners
+								.filter(w => w.name !== lastWinner?.name)
+								.concat(lastWinner ? (participants.find(p => p.coe === lastWinner.coe) ?? []) : []),
 						}));
 					});
-					embla?.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
+				}}
+				onClose={() => {
+					setModalOpened(false);
+
+					if (embla) {
+						if (lastWinner) {
+							startTransition(() => {
+								setConfiguration(prev => ({
+									...prev,
+									winners: [
+										...(prev.winners ?? []),
+										{
+											participant: lastWinner,
+											prize: prev.currentPrize,
+										},
+									],
+									currentPrize: prev.currentPrize >= 0 ? prev.currentPrize - 1 : prev.currentPrize,
+									participants: deleteWinners
+										? prev.participants.filter(p => p.id !== lastWinner?.id)
+										: prev.participants,
+								}));
+							});
+
+							if (currentPrize <= 0) {
+								router.push('/winners');
+							}
+
+							embla?.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
+						}
+					}
 				}}
 			/>
 		</Stack>
