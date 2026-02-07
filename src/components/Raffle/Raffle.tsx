@@ -198,22 +198,24 @@ export const Raffle = () => {
 
 					if (embla) {
 						if (lastWinner) {
-							startTransition(() => {
-								setConfiguration(prev => ({
-									...prev,
-									winners: [
-										...(prev.winners ?? []),
-										{
-											participant: lastWinner,
-											prize: prev.currentPrize,
-										},
-									],
-									currentPrize: prev.currentPrize >= 0 ? prev.currentPrize - 1 : prev.currentPrize,
-									participants: deleteWinners
-										? prev.participants.filter(p => p.id !== lastWinner?.id)
-										: prev.participants,
-								}));
-							});
+							setTimeout(() => {
+								startTransition(() => {
+									setConfiguration(prev => ({
+										...prev,
+										winners: [
+											...(prev.winners ?? []),
+											{
+												participant: lastWinner,
+												prize: prev.currentPrize,
+											},
+										],
+										currentPrize: prev.currentPrize >= 0 ? prev.currentPrize - 1 : prev.currentPrize,
+										participants: deleteWinners
+											? prev.participants.filter(p => p.id !== lastWinner?.id)
+											: prev.participants,
+									}));
+								});
+							}, 200);
 
 							embla?.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
 						}
