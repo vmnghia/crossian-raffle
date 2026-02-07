@@ -8,7 +8,6 @@ import confetti from 'canvas-confetti';
 import { clsx } from 'clsx';
 import type { EmblaCarouselType } from 'embla-carousel';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 import cloud1 from './cloud_1.png';
 import cloud2 from './cloud_2.png';
@@ -52,7 +51,6 @@ export const Raffle = () => {
 		configuration: { participants, spinTime, deleteWinners, currentPrize, preordainedWinners },
 		setConfiguration,
 	} = useConfiguration();
-	const router = useRouter();
 
 	const hasParticipants = participants.length > 1 && participants.some(p => p.name && p.name.trim() !== '');
 
@@ -216,10 +214,6 @@ export const Raffle = () => {
 										: prev.participants,
 								}));
 							});
-
-							if (currentPrize <= 0) {
-								router.push('/winners');
-							}
 
 							embla?.scrollTo(currentPrize >= 0 ? currentPrize : 0, true);
 						}
