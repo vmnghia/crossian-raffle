@@ -71,6 +71,7 @@ export const Actions = ({ participantsListRef }: { participantsListRef: RefObjec
 					}));
 
 					form.setFieldValue('participants', participants);
+					form.clearErrors();
 				},
 				header: true,
 			});
